@@ -90,6 +90,7 @@ function App() {
           {navigation.map((item) => (
             <button
               aria-label={item.label}
+              aria-pressed={activeView === item.id}
               className={activeView === item.id ? 'nav-item active' : 'nav-item'}
               key={item.id}
               onClick={() => setActiveView(item.id)}
@@ -140,7 +141,7 @@ function App() {
                 <div><dt>Escalation</dt><dd>{harness.escalation.owner}</dd></div>
                 <div><dt>Runtime</dt><dd>Not connected</dd></div>
               </dl>
-              <p>Blueprint mode never runs agents, reads private vaults, or sends data away.</p>
+              <p>Blueprint mode never runs agents, reads private vaults, or transmits your harness data away.</p>
             </div>
             <section className="metric-strip" aria-label="Blueprint metrics">
               <article><span>01</span><strong>{harness.teams.length}</strong><p>agentic teams</p></article>

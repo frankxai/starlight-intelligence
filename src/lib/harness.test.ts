@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   buildTopology,
   createHarness,
+  parsePortableHarness,
   sanitizeHarnessForExport,
   validateHarness,
   type HarnessManifest,
@@ -67,6 +68,29 @@ describe('validateHarness', () => {
       issues: expect.arrayContaining(['Worker permissions must be bounded and explicit.']),
     })
   })
+
+  it('rejects unknown sensitive fields at the root and inside a worker', () => {
+    const raw = JSON.stringify({
+      ...sanitizeHarnessForExport(validHarness),
+      credentials: { token: 'must-not-cross-the-boundary' },
+      teams: [{
+        ...validHarness.teams[0],
+        workers: [{ ...validHarness.teams[0].workers[0], prompts: ['private prompt'] }],
+      }],
+    })
+
+    expect(parsePortableHarness(raw)).toMatchObject({
+      valid: false,
+      issues: expect.arrayContaining(['The import contains fields outside the portable contract.']),
+    })
+  })
+
+  it('rejects schema-invalid IDs before a harness reaches the workbench', () => {
+    expect(parsePortableHarness(JSON.stringify({ ...sanitizeHarnessForExport(validHarness), id: 'Not a portable ID!' }))).toMatchObject({
+      valid: false,
+      issues: expect.arrayContaining(['A harness ID must use lowercase letters, numbers, and hyphens.']),
+    })
+  })
 })
 
 describe('buildTopology', () => {
@@ -86,11 +110,20 @@ describe('buildTopology', () => {
 })
 
 describe('sanitizeHarnessForExport', () => {
-  it('removes machine-specific and private runtime state while keeping the portable contract', () => {
-    const exported = sanitizeHarnessForExport(validHarness)
+  it('constructs exports from an allowlist, even if an unsafe in-memory object is passed in', () => {
+    const unsafeHarness = {
+      ...validHarness,
+      credentials: { token: 'must-not-export' },
+      teams: [{
+        ...validHarness.teams[0],
+        workers: [{ ...validHarness.teams[0].workers[0], transcripts: ['must-not-export'] }],
+      }],
+    } as unknown as HarnessManifest
+    const exported = sanitizeHarnessForExport(unsafeHarness)
 
     expect('runtime' in exported).toBe(false)
     expect(JSON.stringify(exported)).not.toContain('private-session-123')
+    expect(JSON.stringify(exported)).not.toContain('must-not-export')
     expect(exported.id).toBe('atlas-team')
   })
 })
