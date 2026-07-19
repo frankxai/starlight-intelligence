@@ -1,0 +1,19 @@
+{
+  "$schema": "https://modelcontextprotocol.io/schemas/config/v1",
+  "name": "starlight-pro-bridge",
+  "status": "documentation-only",
+  "transport": "stdio",
+  "capability_policy": {
+    "default": "read-only",
+    "writes": "operator-approved-only",
+    "secrets": "never-in-manifest",
+    "private_vaults": "never-exposed"
+  },
+  "future_tools": [
+    "harness_validate",
+    "harness_topology",
+    "swarm_receipts_list",
+    "swarm_propose_action"
+  ],
+  "contract": "../starlight-harness.schema.json"
+}

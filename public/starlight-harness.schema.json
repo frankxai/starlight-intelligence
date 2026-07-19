@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://starlightintelligence.ai/schemas/starlight-harness/v1",
+  "title": "Starlight portable harness manifest",
+  "description": "A non-secret, portable contract for a governed agent harness. Runtime state, prompts, credentials, paths and transcripts are intentionally out of scope.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "id", "name", "mission", "owner", "approval", "policyLocks", "teams", "escalation"],
+  "properties": {
+    "schema": { "const": "starlight.harness/v1" },
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,63}$" },
+    "name": { "type": "string", "minLength": 2, "maxLength": 120 },
+    "mission": { "type": "string", "minLength": 10, "maxLength": 1000 },
+    "owner": { "$ref": "#/$defs/agent" },
+    "approval": {
+      "type": "object", "additionalProperties": false, "required": ["required", "threshold"],
+      "properties": { "required": { "const": true }, "threshold": { "enum": ["routine", "high-impact", "irreversible"] } }
+    },
+    "policyLocks": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/policyLock" } },
+    "teams": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/team" } },
+    "escalation": {
+      "type": "object", "additionalProperties": false, "required": ["owner", "when"],
+      "properties": { "owner": { "type": "string", "minLength": 1 }, "when": { "type": "array", "minItems": 1, "items": { "type": "string" } } }
+    }
+  },
+  "$defs": {
+    "agent": {
+      "type": "object", "additionalProperties": false, "required": ["id", "label", "role"],
+      "properties": { "id": { "type": "string" }, "label": { "type": "string" }, "role": { "enum": ["sovereign", "queen", "worker"] }, "provider": { "type": "string" }, "model": { "type": "string" }, "permissions": { "type": "array", "items": { "type": "string", "not": { "const": "*" } } } }
+    },
+    "policyLock": { "type": "object", "additionalProperties": false, "required": ["id", "label", "category"], "properties": { "id": { "type": "string" }, "label": { "type": "string" }, "category": { "enum": ["human-agency", "security", "budget", "data-boundary"] } } },
+    "team": { "type": "object", "additionalProperties": false, "required": ["id", "name", "queen", "workers"], "properties": { "id": { "type": "string" }, "name": { "type": "string" }, "queen": { "$ref": "#/$defs/agent" }, "workers": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/agent" } } } }
+  }
+}
