@@ -1,32 +1,62 @@
-# React + TypeScript + Vite
+# Starlight Pro — Agentic Teams Workbench
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A premium, browser-local command surface for designing a **governed agent harness** before attaching any live agent runtime.
 
-Currently, two official plugins are available:
+![Status](https://img.shields.io/badge/status-prototype-c7efae?style=flat-square) ![Privacy](https://img.shields.io/badge/data-browser--local-101618?style=flat-square) ![Contract](https://img.shields.io/badge/contract-starlight.harness%2Fv1-7a9b63?style=flat-square)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## What is implemented
 
-## React Compiler
+- **Starlight Pro Command Deck** — the product posture, system principles and contract health.
+- **Harness Builder** — edit the harness mission, approval boundary and escalation owner.
+- **Swarm Canvas** — inspect authority, policy locks, Queens and worker lanes.
+- **Agentic Teams** — inspect role contracts, model lanes and bounded permissions.
+- **MCP Bridge** — export/import a versioned, portable, sanitized manifest.
+- **Typed domain contract** — validation, topology derivation and runtime-state sanitization.
+- **Truthful product boundary** — no invisible telemetry, model calls or claimed live control.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Run locally
 
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+pnpm install --frozen-lockfile
+pnpm dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Quality gates:
+
+```bash
+pnpm test
+pnpm lint
+pnpm build
+```
+
+## Privacy and truth boundary
+
+This is a static frontend prototype. It does **not** run agents, access private vaults, connect to GitHub/Vercel/Railway, call models, store user data, or include a running MCP server.
+
+The only transferable artifact is a **sanitized harness blueprint**. It excludes local paths, session IDs, hostnames, prompts, transcripts, credentials and runtime state.
+
+See:
+
+- [`docs/PRODUCT-TRUTH.md`](docs/PRODUCT-TRUTH.md)
+- [`docs/MCP-BRIDGE.md`](docs/MCP-BRIDGE.md)
+- [`public/starlight-harness.schema.json`](public/starlight-harness.schema.json)
+
+## Architecture direction
+
+```text
+Browser-local workbench
+       │ portable starlight.harness/v1
+       ▼
+Private local MCP adapter / authenticated service
+       │ sanitized receipts, read-only first
+       ▼
+Human-approved action boundary
+       │
+SIS canonical memory · ACOS skill execution · Railway service operations
+```
+
+A future adapter must be read-only by default. Any external write, spending action, deployment or message requires a separate explicit human approval.
+
+## Repository role
+
+This is the commercial/product-experience layer of the Starlight constellation. The open protocol and local-first sovereignty posture remain separate from hosted or managed operational capabilities.
