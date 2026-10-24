@@ -91,6 +91,56 @@ describe('validateHarness', () => {
       issues: expect.arrayContaining(['A harness ID must use lowercase letters, numbers, and hyphens.']),
     })
   })
+
+  it('rejects a portable harness with an invalid approval threshold', () => {
+    expect(parsePortableHarness(JSON.stringify({ ...sanitizeHarnessForExport(validHarness), approval: { required: true, threshold: 'low-impact' } }))).toMatchObject({
+      valid: false,
+      issues: expect.arrayContaining(['A portable harness requires a valid approval threshold.']),
+    })
+  })
+
+  it('rejects a portable harness with invalid policy locks', () => {
+    expect(parsePortableHarness(JSON.stringify({ ...sanitizeHarnessForExport(validHarness), policyLocks: [{ id: '', label: 'Invalid lock', category: 'human-agency' }] }))).toMatchObject({
+      valid: false,
+      issues: expect.arrayContaining(['Policy locks must be named and classified.']),
+    })
+  })
+
+  it('rejects a portable harness with invalid teams (e.g. no workers)', () => {
+    expect(parsePortableHarness(JSON.stringify({ ...sanitizeHarnessForExport(validHarness), teams: [{ id: 'team-a', name: 'Team A', queen: validHarness.teams[0].queen, workers: [] }] }))).toMatchObject({
+      valid: false,
+      issues: expect.arrayContaining(['Every team needs a named Queen and workers with bounded permissions.']),
+    })
+  })
+
+  it('rejects a portable harness with invalid escalation conditions', () => {
+    expect(parsePortableHarness(JSON.stringify({ ...sanitizeHarnessForExport(validHarness), escalation: { owner: 'frank', when: [] } }))).toMatchObject({
+      valid: false,
+      issues: expect.arrayContaining(['A portable harness needs a named escalation owner and conditions.']),
+    })
+  })
+
+  it('handles invalid JSON strings gracefully', () => {
+    expect(parsePortableHarness('Not JSON at all')).toMatchObject({
+      valid: false,
+      issues: expect.arrayContaining(['The imported file is not valid JSON.']),
+    })
+  })
+
+  it('rejects a portable harness that passes portable shape validation but fails logical validation', () => {
+    // Duplicate team IDs passes portable shape validation, but fails harness validation.
+    const harnessWithDuplicateTeams = {
+      ...sanitizeHarnessForExport(validHarness),
+      teams: [
+        validHarness.teams[0],
+        validHarness.teams[0]
+      ]
+    }
+    expect(parsePortableHarness(JSON.stringify(harnessWithDuplicateTeams))).toMatchObject({
+      valid: false,
+      issues: expect.arrayContaining(['Team IDs must be unique.']),
+    })
+  })
 })
 
 describe('buildTopology', () => {
